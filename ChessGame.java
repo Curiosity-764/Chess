@@ -20,12 +20,9 @@ public class ChessGame extends JFrame {
         setTitle("Java Chess Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-
-        // Create chess board
         board = new ChessBoard(this);
         add(board, BorderLayout.CENTER);
 
-        // Create control panel
         controlPanel = new JPanel();
         newGameButton = new JButton("New Game");
         gameModeComboBox = new JComboBox<>(new String[]{"Player vs Player", "Player vs AI"});
@@ -37,7 +34,6 @@ public class ChessGame extends JFrame {
 
         add(controlPanel, BorderLayout.SOUTH);
 
-        // Add event listeners
         newGameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
