@@ -1,11 +1,9 @@
-// ChessAI.java - Pure Alpha-Beta Pruning
 import java.util.*;
 
 public class ChessAI {
     private boolean isWhite;
     private int maxDepth;
     
-    // Piece values (same as the minimax code you found)
     private static final int PAWN_VALUE = 100;
     private static final int KNIGHT_VALUE = 320;
     private static final int BISHOP_VALUE = 330;
@@ -13,7 +11,6 @@ public class ChessAI {
     private static final int QUEEN_VALUE = 900;
     private static final int KING_VALUE = 20000;
     
-    // Position tables (from the code you found)
     private static final int[][] PAWN_POSITION = {
         {0, 0, 0, 0, 0, 0, 0, 0},
         {50, 50, 50, 50, 50, 50, 50, 50},
@@ -36,9 +33,64 @@ public class ChessAI {
         {-50, -40, -30, -30, -30, -30, -40, -50}
     };
     
+    private static final int[][] BISHOP_POSITION = {
+        {-20, -10, -10, -10, -10, -10, -10, -20},
+        {-10, 0, 0, 0, 0, 0, 0, -10},
+        {-10, 0, 5, 10, 10, 5, 0, -10},
+        {-10, 5, 5, 10, 10, 5, 5, -10},
+        {-10, 0, 10, 10, 10, 10, 0, -10},
+        {-10, 10, 10, 10, 10, 10, 10, -10},
+        {-10, 5, 0, 0, 0, 0, 5, -10},
+        {-20, -10, -10, -10, -10, -10, -10, -20}
+    };
+    
+    private static final int[][] ROOK_POSITION = {
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {5, 10, 10, 10, 10, 10, 10, 5},
+        {-5, 0, 0, 0, 0, 0, 0, -5},
+        {-5, 0, 0, 0, 0, 0, 0, -5},
+        {-5, 0, 0, 0, 0, 0, 0, -5},
+        {-5, 0, 0, 0, 0, 0, 0, -5},
+        {-5, 0, 0, 0, 0, 0, 0, -5},
+        {0, 0, 0, 5, 5, 0, 0, 0}
+    };
+    
+    private static final int[][] QUEEN_POSITION = {
+        {-20, -10, -10, -5, -5, -10, -10, -20},
+        {-10, 0, 0, 0, 0, 0, 0, -10},
+        {-10, 0, 5, 5, 5, 5, 0, -10},
+        {-5, 0, 5, 5, 5, 5, 0, -5},
+        {0, 0, 5, 5, 5, 5, 0, -5},
+        {-10, 5, 5, 5, 5, 5, 0, -10},
+        {-10, 0, 5, 0, 0, 0, 0, -10},
+        {-20, -10, -10, -5, -5, -10, -10, -20}
+    };
+    
+    private static final int[][] KING_MIDDLEGAME_POSITION = {
+        {-30, -40, -40, -50, -50, -40, -40, -30},
+        {-30, -40, -40, -50, -50, -40, -40, -30},
+        {-30, -40, -40, -50, -50, -40, -40, -30},
+        {-30, -40, -40, -50, -50, -40, -40, -30},
+        {-20, -30, -30, -40, -40, -30, -30, -20},
+        {-10, -20, -20, -20, -20, -20, -20, -10},
+        {20, 20, 0, 0, 0, 0, 20, 20},
+        {20, 30, 10, 0, 0, 10, 30, 20}
+    };
+    
+    private static final int[][] KING_ENDGAME_POSITION = {
+        {-50, -40, -30, -20, -20, -30, -40, -50},
+        {-30, -20, -10, 0, 0, -10, -20, -30},
+        {-30, -10, 20, 30, 30, 20, -10, -30},
+        {-30, -10, 30, 40, 40, 30, -10, -30},
+        {-30, -10, 30, 40, 40, 30, -10, -30},
+        {-30, -10, 20, 30, 30, 20, -10, -30},
+        {-30, -30, 0, 0, 0, 0, -30, -30},
+        {-50, -30, -30, -30, -30, -30, -30, -50}
+    };
+    
     public ChessAI(boolean isWhite) {
         this.isWhite = isWhite;
-        this.maxDepth = 3; 
+        this.maxDepth = 3;
     }
     
     public Move getBestMove(ChessBoard board) {
@@ -81,7 +133,7 @@ public class ChessAI {
             if (isKingInCheck(board, currentPlayer, originalBoard)) {
                 return maximizingPlayer ? Integer.MIN_VALUE + 1000 : Integer.MAX_VALUE - 1000;
             }
-            return 0; 
+            return 0;
         }
         
         if (maximizingPlayer) {
@@ -95,7 +147,7 @@ public class ChessAI {
                 alpha = Math.max(alpha, eval);
                 
                 if (beta <= alpha) {
-                    break; 
+                    break;
                 }
             }
             
@@ -160,7 +212,10 @@ public class ChessAI {
         switch (piece.getType()) {
             case PAWN: return PAWN_POSITION[adjustedRow][col];
             case KNIGHT: return KNIGHT_POSITION[adjustedRow][col];
-            // Can add more position tables here...
+            case BISHOP: return BISHOP_POSITION[adjustedRow][col];
+            case ROOK: return ROOK_POSITION[adjustedRow][col];
+            case QUEEN: return QUEEN_POSITION[adjustedRow][col];
+            case KING: return KING_MIDDLEGAME_POSITION[adjustedRow][col];
             default: return 0;
         }
     }
@@ -221,7 +276,6 @@ public class ChessAI {
                     List<Position> possibleMoves = piece.getPossibleMoves(from, board);
                     
                     for (Position to : possibleMoves) {
-                        // Simplified - in real alpha-beta, need proper check checking
                         moves.add(new Move(from, to));
                     }
                 }
