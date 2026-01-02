@@ -175,14 +175,14 @@ public class ChessBoard extends JPanel {
 	        }
 	    }
 	    
-	    // Handle castling - update rook position too
+	  
 	    if (movingPiece.getType() == PieceType.KING && Math.abs(from.col - to.col) == 2) {
-	        // Update rook position for castling
+	       
 	        int row = from.row;
-	        if (to.col == 6) { // Kingside
+	        if (to.col == 6) {
 	            board[row][5] = board[row][7];
 	            board[row][7] = null;
-	        } else if (to.col == 2) { // Queenside
+	        } else if (to.col == 2) { 
 	            board[row][3] = board[row][0];
 	            board[row][0] = null;
 	        }
@@ -570,4 +570,5 @@ public class ChessBoard extends JPanel {
 		}
 		repaint();
 	}
+
 }
