@@ -119,6 +119,63 @@ public class ChessAI {
         
         return bestMove;
     }
+
+    private int minimax(ChessPiece[][] board, int depth, boolean maximizingPlayer, ChessBoard originalBoard) {
+    if (depth == 0) {
+        return evaluateBoard(board);
+    }
+
+    boolean currentPlayer = maximizingPlayer ? isWhite : !isWhite;
+    List<Move> moves = getAllPossibleMoves(board, currentPlayer, originalBoard);
+
+    if (moves.isEmpty()) {
+        if (isKingInCheck(board, currentPlayer, originalBoard)) {
+            return maximizingPlayer 
+                ? Integer.MIN_VALUE + 1000 
+                : Integer.MAX_VALUE - 1000;
+        }
+        return 0; // hòa
+    }
+
+    if (maximizingPlayer) {
+        int maxEval = Integer.MIN_VALUE;
+        for (Move move : moves) {
+            ChessPiece[][] newBoard = simulateMove(board, move);
+            int eval = minimax(newBoard, depth - 1, false, originalBoard);
+            maxEval = Math.max(maxEval, eval);
+        }
+        return maxEval;
+    } else {
+        int minEval = Integer.MAX_VALUE;
+        for (Move move : moves) {
+            ChessPiece[][] newBoard = simulateMove(board, move);
+            int eval = minimax(newBoard, depth - 1, true, originalBoard);
+            minEval = Math.min(minEval, eval);
+        }
+        return minEval;
+    }
+}
+
+public Move getBestMoveMinimax(ChessBoard board) {
+    List<Move> allMoves = getAllPossibleMoves(board, isWhite);
+    if (allMoves.isEmpty()) return null;
+
+    Move bestMove = null;
+    int bestValue = Integer.MIN_VALUE;
+
+    for (Move move : allMoves) {
+        ChessPiece[][] newBoard = simulateMove(board.getBoardState(), move);
+        int moveValue = minimax(newBoard, maxDepth - 1, false, board);
+
+        if (moveValue > bestValue) {
+            bestValue = moveValue;
+            bestMove = move;
+        }
+    }
+    return bestMove;
+}
+
+
     
     private int alphaBeta(ChessPiece[][] board, int depth, int alpha, int beta, 
                           boolean maximizingPlayer, ChessBoard originalBoard) {
